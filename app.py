@@ -9,17 +9,18 @@ import io
 
 app = Chalice(app_name='job_match')
 
-_JOB_DB = None
-_RESUME_DB = None
-
-_SUPPORTED_FILE_EXTENSIONS = (
-    '.pdf',
-)
-
 # tem for pytest TODO: del after
 os.environ['RESUME_BUCKET_NAME'] = "job-match-resumebucket-ygndex4ohi8p"
 os.environ['JOB_TABLE_NAME'] = "job-match-JobTable-K36364VHXURZ"
 os.environ['RESUME_TABLE_NAME'] = "job-match-ResumeTable-17EXYAJXU52JT"
+
+_JOB_DB = None
+_RESUME_DB = None
+_S3_CLIENT = None
+
+_SUPPORTED_FILE_EXTENSIONS = (
+    '.pdf',
+)
 
 
 def get_job_db():
@@ -38,6 +39,13 @@ def get_resume_db():
             boto3.resource('dynamodb').Table(
                 os.environ['RESUME_TABLE_NAME']), 'ResumeID')
     return _RESUME_DB
+
+
+def get_s3_client():
+    global _S3_CLIENT
+    if _S3_CLIENT is None:
+        _S3_CLIENT = boto3.client('s3')
+    return _S3_CLIENT
 
 
 @app.route('/')
@@ -60,10 +68,22 @@ def delete_all():
     get_job_db().delete_all()
 
 
-@app.route('/reset')
+@app.route('/reset/all')
 def reset():
     delete_all()
     return 'everything is deleted'
+
+
+@app.route('/reset/job')
+def reset():
+    get_job_db().delete_all()
+    return 'jobs are deleted'
+
+
+@app.route('/reset/resume')
+def reset():
+    get_resume_db().delete_all()
+    return 'resumes are deleted'
 
 
 def _is_pdf(key):
@@ -74,8 +94,8 @@ def _is_pdf(key):
                  events=['s3:ObjectCreated:*'])
 def handle_object_created(event):
     if _is_pdf(event.key):
-        s3_client = boto3.client('s3')
-        bucket_name = os.environ['RESUME_BUCKET_NAME']
+        s3_client = get_s3_client()
+        bucket_name = event.bucket
 
         # Get the file object from S3
         file_obj = s3_client.get_object(Bucket=bucket_name, Key=event.key)

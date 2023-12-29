@@ -1,0 +1,66 @@
+{
+  "Outputs": {
+    "ResumeBucketName": {
+      "Value": {
+        "Ref": "ResumeBucket"
+      }
+    },
+    "JobTableName": {
+      "Value": {
+        "Ref": "JobTable"
+      }
+    },
+    "ResumeTableName": {
+      "Value": {
+        "Ref": "ResumeTable"
+      }
+    }
+  },
+  "Resources": {
+    "ResumeBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "JobTable": {
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "JobID",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "JobID",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+      },
+      "Type": "AWS::DynamoDB::Table"
+    },
+    "ResumeTable": {
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "ResumeID",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "ResumeID",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+      },
+      "Type": "AWS::DynamoDB::Table"
+    }
+  }
+}
