@@ -1,5 +1,5 @@
 from chalice import Chalice
-from chalice import Rate
+# from chalice import Rate
 from chalicelib import db
 from chalicelib import extract_pdf
 from chalicelib.apify_scrapper import JobScraper
@@ -17,7 +17,6 @@ os.environ['RESUME_TABLE_NAME'] = "job-match-ResumeTable-17EXYAJXU52JT"
 _JOB_DB = None
 _RESUME_DB = None
 _S3_CLIENT = None
-
 _SUPPORTED_FILE_EXTENSIONS = (
     '.pdf',
 )
@@ -63,25 +62,21 @@ def get_resume_file():
     return get_resume_db().list_all()
 
 
+@app.route('/delete/all')
 def delete_all():
     get_resume_db().delete_all()
     get_job_db().delete_all()
-
-
-@app.route('/reset/all')
-def reset():
-    delete_all()
     return 'everything is deleted'
 
 
-@app.route('/reset/job')
-def reset():
+@app.route('/delete/job')
+def delete_job():
     get_job_db().delete_all()
     return 'jobs are deleted'
 
 
-@app.route('/reset/resume')
-def reset():
+@app.route('/delete/resume')
+def delete_resume():
     get_resume_db().delete_all()
     return 'resumes are deleted'
 
@@ -121,8 +116,8 @@ def handle_object_created(event):
 #         info='some job info'
 #     )
 
-# @app.schedule(Rate(1, unit=Rate.DAYS))
-@app.route('/test_scrapping')
+
+@app.route('/test_scrapping')  # @app.schedule(Rate(1, unit=Rate.DAYS))
 def job_scrapping():
     api_token = "apify_api_UTzABhZjVPwwd0v3zfj7ipY7co3eJ04loR1L"
     actor_id = "deM7vgccGPS1CLYwV"
