@@ -1,14 +1,16 @@
 on:
   push:
-    branches:
-      - master
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
 name: Deploy branch to Chalice
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v3
     - name: chalice deploy
       uses: jayef0/chalice-extended-action@release-v0.2.1
       env:
